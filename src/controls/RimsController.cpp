@@ -24,6 +24,7 @@ RimsController::RimsController(
   this->pid->SetMode(MANUAL);
   this->pid->SetOutputLimits(0, 1);
 
+  this->activeLedPin = activeLedPin;
   pinMode(activeLedPin, OUTPUT);
   digitalWrite(activeLedPin, LOW);
 
@@ -37,10 +38,12 @@ void RimsController::setOnState( bool isOn, bool autoMode )
   if(isOn)
   {
     setMode(autoMode);
+    digitalWrite(activeLedPin, HIGH);
   }
   else
   {
     setMode(false);
+    digitalWrite(activeLedPin, LOW);
   }
 }
 
@@ -56,12 +59,10 @@ void RimsController::setMode( bool autoMode )
   if(autoMode)
   {
     this->pid->SetMode(AUTOMATIC);
-    digitalWrite(activeLedPin, HIGH);
   }
   else
   {
     this->pid->SetMode(MANUAL);
-    digitalWrite(activeLedPin, LOW);
   }
 }
 
@@ -81,7 +82,11 @@ void RimsController::incrementInput(int increment, int param)
     }
     else
     {
-      setManualOutput(this->output + increment / 100);
+      int percent = (int)(this->output * 100.0);
+      percent += increment;
+      percent = percent < 0 ? 0 : percent;
+      percent = percent > 100 ? 100 : percent;
+      setManualOutput(this->output + percent / 100.0);
     }
   }
   else if(param == 1)

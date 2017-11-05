@@ -1,7 +1,11 @@
 #include "RimsUpdater.h"
+#include <MemoryFree.h>
 
 RimsUpdater::RimsUpdater()
 {
+    strncpy(numBuff, clearLine, 20);
+    numBuff[20] = '\0';
+
     Adafruit_ADS1115 ads;
     ads.setGain(GAIN_ONE);
     ads.begin();
@@ -97,41 +101,88 @@ void RimsUpdater::update()
 
 void RimsUpdater::display()
 {
+  // Serial.print("freeMemory()=");
+  // Serial.println(freeMemory());
   char* value = displayLines[0];
-  value[0] = '\0';
-  strcpy(value, "RIMS: ");
-  float rimsTemp = rimsController->getRimsTemp();
-  float setPoint = rimsController->setPoint;
-  dtostrf((double)rimsTemp, 0, 1, value + strlen(value));
-  strcat(value, "~");
-  dtostrf((double)setPoint, 0, 1, value + strlen(value));
+  double rimsTemp = rimsController->getRimsTemp();
+  double setPoint = rimsController->setPoint;
+  dtostrf(rimsTemp, 0, 1, numBuff);
+  strncat(numBuff, clearLine, 20 - strlen(numBuff));
+  //  01234567890123456789
+  // "RIMS:###.#~###.#  AU" OR
+  // "RIMS:###.#        MN"
+  strncpy(value + 5, clearLine, 5);
+  strncpy(value + 5, numBuff, 5);
+  if(autoModeOn)
+  {
+    strncpy(value + 10, clearLine, 10);
+    strncpy(value + 10, toWord, 1);
+    dtostrf(setPoint, 0, 1, numBuff);
+    strncat(numBuff, clearLine, 20 - strlen(numBuff));
+    strncpy(value + 11, numBuff, 5);
+    strncpy(value + 18, autoWord, 2);
+
+  }
+  else
+  {
+    strncpy(value + 10, clearLine, 10);
+    strncpy(value + 18, manualWord, 2);
+  }
 
   value = displayLines[1];
-  value[0] ='\0';
-  strcpy(value, "MASH: ");
-  float mashTemp = rimsController->getMashTemp();
-  dtostrf((double)mashTemp, 0, 1, value + strlen(value));
+  double mashTemp = rimsController->getMashTemp();
+  dtostrf(mashTemp, 0, 1, numBuff);
+  strncat(numBuff, clearLine, 20 - strlen(numBuff));
+  //  01234567890123456789
+  // "MASH:###.#          ",
+  strncpy(value + 5, clearLine, 5);
+  strncpy(value + 5, numBuff, 5);
+
+  // Serial.print("freeMemory()=");
+  // Serial.println(freeMemory());
 
   value = displayLines[2];
-  value[0] ='\0';
-  strcpy(value, "AMPS: ");
-  float amps = ammeter->getCurrent();
-  int duty = (int)rimsController->output;
-  dtostrf((double)amps, 0, 1, value + strlen(value));
-  itoa(duty, value + strlen(value), 10);
-  strcat(value, "%");
+  double amps = ammeter->getCurrent();
+  double out = rimsController->output;
+  dtostrf(amps, 0, 1, numBuff);
+  strncat(numBuff, clearLine, 20 - strlen(numBuff));
+  //  01234567890123456789
+  // "AMPS:##.#   OUT:###%",
+  strncpy(value + 5, clearLine, 4);
+  strncpy(value + 5, numBuff, 4);
+  dtostrf(out * 100.0, 0, 0, numBuff);
+  strncat(numBuff, clearLine, 20 - strlen(numBuff));
+  strncpy(value + 16, numBuff, 3);
+
+  // Serial.print("freeMemory()=");
+  // Serial.println(freeMemory());
 
   value = displayLines[3];
-  value[0] = '0';
-  strcpy(value, "Kp");
-  strcat(value, inputMode == 1 ? "?" : ":");
-  dtostrf(rimsController->kp, 0, 1, value + strlen(value));
-  strncpy(value + 7, " Ki", 7);
-  strcat(value, inputMode == 2 ? "?" : ":");
-  dtostrf(rimsController->ki, 0, 1, value + strlen(value));
-  strncpy(value + 14, " Kd", 7);
-  strcat(value, inputMode == 3 ? "?" : ":");
-  dtostrf(rimsController->kd, 0, 1, value + strlen(value));
+  //  01234567890123456789
+  // "P:#### I:#### D:####"
+  strncpy(value + 1, (inputMode == 1 ? setWord : valWord), 1);
+  strncpy(value + 8, (inputMode == 1 ? setWord : valWord), 1);
+  strncpy(value + 15, (inputMode == 1 ? setWord : valWord), 1);
+  dtostrf(rimsController->kp, 0, 1, numBuff);
+  strncat(numBuff, clearLine, 20 - strlen(numBuff));
+  strncpy(value + 2, clearLine, 4);
+  strncpy(value + 2, numBuff, 4);
+  dtostrf(rimsController->ki, 0, 1, numBuff);
+  strncat(numBuff, clearLine, 20 - strlen(numBuff));
+  strncpy(value + 9, clearLine, 4);
+  strncpy(value + 9, numBuff, 4);
+  dtostrf(rimsController->kd, 0, 1, numBuff);
+  strncat(numBuff, clearLine, 20 - strlen(numBuff));
+  strncpy(value + 16, clearLine, 4);
+  strncpy(value + 16, numBuff, 4);
 
-  lcd->show(displayLines);
+  const char* passValDisplay[4] =
+  {
+    displayLines[0],
+    displayLines[1],
+    displayLines[2],
+    displayLines[3]
+  };
+
+  lcd->show(passValDisplay);
 }

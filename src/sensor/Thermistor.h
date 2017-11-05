@@ -19,7 +19,7 @@ class Thermistor
     unsigned long lastUpdate;
     double* currentTemp;
     //Corresponds to GAIN 1
-    double voltsPerBit = 0.125;
+    double voltsPerBit = 0.000125;
     double voltage = 3.3;
 
   public:

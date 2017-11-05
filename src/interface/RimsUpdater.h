@@ -14,7 +14,20 @@ class RimsUpdater
     unsigned int pumpOutPin;
     unsigned int pumpLedPin;
 
-    char displayLines[4][21] = {{0},{0},{0},{0}};
+    char displayLines[4][21] =
+    {
+      "RIMS:###.#~###.#  AU",
+      "MASH:###.#          ",
+      "AMPS:##.#   OUT:###%",
+      "P:#### I:#### D:####"
+    };
+    char numBuff[21];
+    const char* clearLine = "                    ";
+    const char* autoWord = "AU";
+    const char* manualWord = "MN";
+    const char* toWord = "~";
+    const char* setWord = "?";
+    const char* valWord = ":";
 
     bool pumpOn;
     bool rimsOn;

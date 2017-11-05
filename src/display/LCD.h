@@ -12,7 +12,7 @@ class LCD
   public:
     LiquidCrystal_I2C lcd;
     unsigned long lastUpdate;
-    char lines[ROWS][COLS];
+    char lines[ROWS][COLS+1];
 
   public:
     LCD( uint8_t addr ):lcd(addr, COLS, ROWS)
