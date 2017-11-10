@@ -77,7 +77,7 @@ void RimsUpdater::update()
     inputMode = 0;
   }
   //Safe to call repeatedly
-  rimsController->setOnState( rimsOn, autoModeOn);
+  rimsController->setState( rimsOn, autoModeOn);
 
 
   if(input->isRotaryClick())
@@ -119,9 +119,9 @@ void RimsUpdater::display()
   {
     strncpy(value + 10, clearLine, 10);
     strncpy(value + 11, "SET:", 4);
-    dtostrf(setPoint, 0, 1, numBuff);
+    dtostrf(setPoint, 0, 0, numBuff);
     strncat(numBuff, clearLine, 20 - strlen(numBuff));
-    strncpy(value + 15, numBuff, 5);
+    strncpy(value + 15, numBuff, 3);
   }
   else
   {
@@ -137,7 +137,7 @@ void RimsUpdater::display()
 
   strncpy(value + 10, clearLine, 10);
   strncpy(value + 10, clearLine, 10);
-  strncpy(value + 11, autoModeOn ? "AUT:" : "MNL:", 4);
+  strncpy(value + 11, autoModeOn ? "ATM:" : "MNL:", 4);
   strncpy(value + 15, rimsOn ? "ON " : "OFF", 3);
 
   value = displayLines[2];

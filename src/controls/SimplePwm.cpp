@@ -2,7 +2,7 @@
 
 SimplePwm::SimplePwm(double frequencyHz, int outputPin)
 {
-  periodMillis = (long) ( 1 / frequencyHz ) * 1000;
+  periodMillis = (long) ( 1000.0 / frequencyHz );
   this->outputPin = outputPin;
   pinMode(outputPin, OUTPUT);
   digitalWrite(outputPin, LOW);
@@ -26,7 +26,7 @@ void SimplePwm::update(double dutyCycle)
   unsigned long quotient = (currentMillis - windowStartTime) / periodMillis;
   windowStartTime += quotient * periodMillis;
 
-  if ((1 - dutyCycle) * periodMillis < currentMillis - windowStartTime)
+  if ((1 - dutyCycle) * periodMillis <= currentMillis - windowStartTime)
   {
     if(isOn)
     {

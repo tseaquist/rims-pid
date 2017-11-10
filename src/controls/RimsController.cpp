@@ -21,6 +21,7 @@ RimsController::RimsController(
     P_ON_M, DIRECT);
 
   this->isOn = false;
+  this->autoWhenOn = false;
 
   this->pid->SetMode(MANUAL);
   this->pid->SetOutputLimits(0, 1);
@@ -32,34 +33,16 @@ RimsController::RimsController(
   this->pwmOutput = new SimplePwm(frequencyHz, outputPin);
 }
 
-void RimsController::setOnState( bool isOn, bool autoMode )
+void RimsController::setState( bool isOn, bool autoMode )
 {
+  //Turning off in autoMode -> set output to zero.
   if(this->isOn != isOn && !isOn && autoMode)
   {
     output = 0.0;
   }
-  this->isOn = isOn;
-  this->pwmOutput->setMode(isOn);
-  if(isOn)
+  if(this->isOn != isOn || autoMode != autoWhenOn)
   {
-    setMode(autoMode);
-    digitalWrite(activeLedPin, HIGH);
-  }
-  else
-  {
-    setMode(false);
-    digitalWrite(activeLedPin, LOW);
-  }
-}
-
-void RimsController::setMode( bool autoMode )
-{
-
-  bool on = this->pid->GetMode() == AUTOMATIC;
-  //Is state changed?
-  if(autoMode != on)
-  {
-    if(autoMode)
+    if(autoWhenOn && isOn)
     {
       this->pid->SetMode(AUTOMATIC);
     }
@@ -67,7 +50,11 @@ void RimsController::setMode( bool autoMode )
     {
       this->pid->SetMode(MANUAL);
     }
+    this->pwmOutput->setMode(isOn);
   }
+  this->isOn = isOn;
+  autoWhenOn = autoMode;
+  digitalWrite(activeLedPin, isOn ? HIGH : LOW);
 }
 
 void RimsController::setTemp(double temp)
@@ -79,8 +66,7 @@ void RimsController::incrementInput(int increment, int param)
 {
   if(param == 0)
   {
-    bool autoMode = (this->pid->GetMode() == AUTOMATIC);
-    if(autoMode)
+    if(autoWhenOn)
     {
       setTemp(this->setPoint + increment);
     }

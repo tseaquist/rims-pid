@@ -12,6 +12,7 @@ class RimsController
     Thermistor* mashThermistor;
     PID* pid;
     bool isOn;
+    bool autoWhenOn;
     int activeLedPin;
     int outputPin;
     double kpOffset=0, kiOffset = sizeof(double), kdOffset = 2 * sizeof(double);
@@ -28,8 +29,7 @@ class RimsController
       int outputPin,
       double startSetPoint );
 
-    void setOnState( bool isOn, bool autoMode );
-    void setMode( bool autoMode );
+    void setState( bool isOn, bool autoMode );
     void setTemp( double temp );
     void incrementInput( int increment, int param );
     void setParams(double kp, double ki, double kd);
