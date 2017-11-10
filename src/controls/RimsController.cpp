@@ -16,15 +16,16 @@ RimsController::RimsController(
   EEPROM.get(kpOffset, kp);
   EEPROM.get(kiOffset, ki);
   EEPROM.get(kdOffset, kd);
-  this->pid = new PID(tubeThermistor->currentTemp, &output, &setPoint,
+  this->pid = new PID(&(tubeThermistor->currentTemp), &output, &setPoint,
     kp, ki, kd,
-    P_ON_M, DIRECT);
+    P_ON_E, DIRECT);
 
   this->isOn = false;
   this->autoWhenOn = false;
 
   this->pid->SetMode(MANUAL);
   this->pid->SetOutputLimits(0, 1);
+  this->pid->SetSampleTime(500);
 
   this->activeLedPin = activeLedPin;
   pinMode(activeLedPin, OUTPUT);
@@ -35,11 +36,6 @@ RimsController::RimsController(
 
 void RimsController::setState( bool isOn, bool autoMode )
 {
-  //Turning off in autoMode -> set output to zero.
-  if(this->isOn != isOn && !isOn && autoMode)
-  {
-    output = 0.0;
-  }
   if(this->isOn != isOn || autoMode != autoWhenOn)
   {
     if(autoWhenOn && isOn)
@@ -51,6 +47,11 @@ void RimsController::setState( bool isOn, bool autoMode )
       this->pid->SetMode(MANUAL);
     }
     this->pwmOutput->setMode(isOn);
+    // Turning off in autoMode -> set output to zero.
+    if(!isOn && autoMode)
+    {
+      output = 0.0;
+    }
   }
   this->isOn = isOn;
   autoWhenOn = autoMode;
@@ -106,9 +107,9 @@ void RimsController::saveParams()
 
 void RimsController::setParams(double kp, double ki, double kd)
 {
-  this->kp = kp;
-  this->ki = ki;
-  this->kd = kd;
+  this->kp = kp < 0 ? 0 : kp;
+  this->ki = ki < 0 ? 0 : ki;
+  this->kd = kd < 0 ? 0 : kd;
   this->pid->SetTunings(kp, ki, kd);
 }
 
@@ -130,6 +131,5 @@ double RimsController::getMashTemp()
 void RimsController::update()
 {
   this->pid->Compute();
-
   this->pwmOutput->update(this->output);
 }

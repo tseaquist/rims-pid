@@ -39,7 +39,7 @@ double Thermistor::getTemp()
     lastUpdate = now;
     update();
   }
-  return *currentTemp;
+  return currentTemp;
 }
 
 void Thermistor::update()
@@ -53,5 +53,5 @@ void Thermistor::update()
   temp = temp * lnResitance + steinhartA1;
   //Final part is to invert
   temp = 1.0 / temp;
-  *currentTemp = (9.0 * (temp - 273.0) / 5.0 + 32.0);
+  currentTemp = (9.0 * (temp - 273.0) / 5.0 + 32.0);
 }

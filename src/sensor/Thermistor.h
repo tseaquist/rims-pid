@@ -17,7 +17,7 @@ class Thermistor
     double steinhartA4; //Fourth Steinhart-Hart coefficient.
 
     unsigned long lastUpdate;
-    double* currentTemp;
+    double currentTemp;
     //Corresponds to GAIN 1
     const double voltsPerBit = 0.000125;
     const double voltage = 3.3;
