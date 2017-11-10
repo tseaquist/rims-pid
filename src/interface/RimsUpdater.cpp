@@ -153,24 +153,61 @@ void RimsUpdater::display()
   strncat(numBuff, clearLine, 20 - strlen(numBuff));
   strncpy(value + 15, numBuff, 5);
 
-  const char* setWord = "?";
-  const char* valWord = ":";
+
   value = displayLines[3];
-  strncpy(value + 1, (inputMode == 1 ? setWord : valWord), 1);
-  strncpy(value + 8, (inputMode == 2 ? setWord : valWord), 1);
-  strncpy(value + 15, (inputMode == 3 ? setWord : valWord), 1);
-  dtostrf(rimsController->kp, 0, 1, numBuff);
-  strncat(numBuff, clearLine, 20 - strlen(numBuff));
-  strncpy(value + 2, clearLine, 4);
-  strncpy(value + 2, numBuff, 4);
-  dtostrf(rimsController->ki, 0, 1, numBuff);
-  strncat(numBuff, clearLine, 20 - strlen(numBuff));
-  strncpy(value + 9, clearLine, 4);
-  strncpy(value + 9, numBuff, 4);
-  dtostrf(rimsController->kd, 0, 1, numBuff);
-  strncat(numBuff, clearLine, 20 - strlen(numBuff));
-  strncpy(value + 16, clearLine, 4);
-  strncpy(value + 16, numBuff, 4);
+
+  strncpy(value, clearLine, 20);
+  if( inputMode == 0 && autoModeOn )
+  {
+    strncpy(value + 0, "P:", 2);
+    strncpy(value + 7, "I:", 2);
+    strncpy(value + 14, "D:", 2);
+    //Display 0.1% per deg
+    dtostrf(rimsController->kp * 1000, 0, 0, numBuff);
+    strncat(numBuff, clearLine, 20 - strlen(numBuff));
+    strncpy(value + 2, clearLine, 4);
+    strncpy(value + 2, numBuff, 4);
+    //Display 0.1% per (deg*sec)
+    dtostrf(rimsController->ki * 1000, 0, 0, numBuff);
+    strncat(numBuff, clearLine, 20 - strlen(numBuff));
+    strncpy(value + 9, clearLine, 4);
+    strncpy(value + 9, numBuff, 4);
+    //Display 0.1% per (deg/sec)
+    dtostrf(rimsController->kd * 1000, 0, 0, numBuff);
+    strncat(numBuff, clearLine, 20 - strlen(numBuff));
+    strncpy(value + 16, clearLine, 4);
+    strncpy(value + 16, numBuff, 4);
+  }
+  else if(autoModeOn)
+  {
+    if(inputMode == 1)
+    {
+      strncpy(value + 0, "P:", 2);
+      //Display 0.1% per deg
+      dtostrf(rimsController->kp * 1000, 0, 0, numBuff);
+      strncat(numBuff, clearLine, 20 - strlen(numBuff));
+      strncpy(value + 2, numBuff, 4);
+      strncpy(value + 7, "0.1%/Dg", 13);
+    }
+    else if(inputMode == 2)
+    {
+      strncpy(value + 0, "I:", 2);
+      //Display 0.1% per (deg*sec)
+      dtostrf(rimsController->kp * 1000, 0, 0, numBuff);
+      strncat(numBuff, clearLine, 20 - strlen(numBuff));
+      strncpy(value + 2, numBuff, 4);
+      strncpy(value + 7, "0.1%/(Dg*Sec)", 13);
+    }
+    else if(inputMode == 3)
+    {
+      strncpy(value + 0, "D:", 2);
+      //Display 0.1% per (deg/sec)
+      dtostrf(rimsController->kp * 1000, 0, 0, numBuff);
+      strncat(numBuff, clearLine, 20 - strlen(numBuff));
+      strncpy(value + 2, numBuff, 4);
+      strncpy(value + 7, "0.1%/(Dg/Sec)", 13);
+    }
+  }
 
   const char* passValDisplay[4] =
   {

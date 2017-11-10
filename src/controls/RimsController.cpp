@@ -83,17 +83,17 @@ void RimsController::incrementInput(int increment, int param)
   }
   else if(param == 1)
   {
-    kp += increment / 10.0;
+    kp += increment / 1000.0;
     setParams(kp, ki, kd);
   }
   else if(param == 2)
   {
-    ki += increment / 10.0;
+    ki += increment / 1000.0;
     setParams(kp, ki, kd);
   }
   else if(param == 3)
   {
-    kd += increment / 10.0;
+    kd += increment / 1000.0;
     setParams(kp, ki, kd);
   }
 }
@@ -104,12 +104,17 @@ void RimsController::saveParams()
   EEPROM.put( kiOffset, ki );
   EEPROM.put( kdOffset, kd );
 }
-
+//kp: duty per deg
+//ki: duty per (deg*sec)
+//kd: duty per (deg/sec)
 void RimsController::setParams(double kp, double ki, double kd)
 {
   this->kp = kp < 0 ? 0 : kp;
+  this->kp = kp > 1.0 ? 1.0 : kp;
   this->ki = ki < 0 ? 0 : ki;
+  this->ki = ki > 1.0 ? 1.0 : ki;
   this->kd = kd < 0 ? 0 : kd;
+  this->kd = kd > 1.0 ? 1.0 : kd;
   this->pid->SetTunings(kp, ki, kd);
 }
 
