@@ -1,22 +1,20 @@
 #include "RimsUpdater.h"
-#include <MemoryFree.h>
 
 RimsUpdater::RimsUpdater()
 {
-    strncpy(numBuff, clearLine, 20);
-    numBuff[20] = '\0';
+    lcd = new LCD<4, 20>( 0x27 );
 
-    Adafruit_ADS1115 ads;
-    ads.setGain(GAIN_ONE);
-    ads.begin();
+    ads = new Adafruit_ADS1115();
+    ads->setGain(GAIN_ONE);
+    ads->begin();
     //ADS A0 pin
-    Thermistor* rimsThermistor = new Thermistor(0, &ads, 10000,
+    Thermistor* rimsThermistor = new Thermistor(0, ads, 10000,
       1.0381149079075397E-3,
       2.5144581342720644E-4,
       0.0,
       0.0);
     //ADS A1 pin
-    Thermistor* mashThermistor = new Thermistor(1, &ads, 10000,
+    Thermistor* mashThermistor = new Thermistor(1, ads, 10000,
       1.0381149079075397E-3,
       2.5144581342720644E-4,
       0.0,
@@ -29,7 +27,6 @@ RimsUpdater::RimsUpdater()
     ammeter = new Ammeter(0);
 
     input = new Input();
-    lcd = new LCD<4, 20>( 0x27 );
 
     pumpOutPin = 7;
     pumpLedPin = 8;
@@ -39,7 +36,8 @@ RimsUpdater::RimsUpdater()
     digitalWrite(pumpLedPin, LOW);
     pumpOn = false;
     rimsOn = false;
-    autoModeOn = true;
+    autoModeOn = input->isRimsModeUp();
+    inputMode = 0;
 }
 
 void RimsUpdater::pumpMode(bool onOff)
@@ -74,6 +72,10 @@ void RimsUpdater::update()
   }
 
   autoModeOn = input->isRimsModeUp();
+  if(!autoModeOn)
+  {
+    inputMode = 0;
+  }
   //Safe to call repeatedly
   rimsController->setOnState( rimsOn, autoModeOn);
 
@@ -101,68 +103,62 @@ void RimsUpdater::update()
 
 void RimsUpdater::display()
 {
-  // Serial.print("freeMemory()=");
-  // Serial.println(freeMemory());
+  const char* clearLine = "                    ";
+
+  strncpy(numBuff, clearLine, 20);
+  numBuff[20] = '\0';
+
   char* value = displayLines[0];
   double rimsTemp = rimsController->getRimsTemp();
   double setPoint = rimsController->setPoint;
   dtostrf(rimsTemp, 0, 1, numBuff);
   strncat(numBuff, clearLine, 20 - strlen(numBuff));
-  //  01234567890123456789
-  // "RIMS:###.#~###.#  AU" OR
-  // "RIMS:###.#        MN"
   strncpy(value + 5, clearLine, 5);
   strncpy(value + 5, numBuff, 5);
   if(autoModeOn)
   {
     strncpy(value + 10, clearLine, 10);
-    strncpy(value + 10, toWord, 1);
+    strncpy(value + 11, "SET:", 4);
     dtostrf(setPoint, 0, 1, numBuff);
     strncat(numBuff, clearLine, 20 - strlen(numBuff));
-    strncpy(value + 11, numBuff, 5);
-    strncpy(value + 18, autoWord, 2);
-
+    strncpy(value + 15, numBuff, 5);
   }
   else
   {
-    strncpy(value + 10, clearLine, 10);
-    strncpy(value + 18, manualWord, 2);
+     strncpy(value + 10, clearLine, 10);
   }
 
   value = displayLines[1];
   double mashTemp = rimsController->getMashTemp();
   dtostrf(mashTemp, 0, 1, numBuff);
   strncat(numBuff, clearLine, 20 - strlen(numBuff));
-  //  01234567890123456789
-  // "MASH:###.#          ",
   strncpy(value + 5, clearLine, 5);
   strncpy(value + 5, numBuff, 5);
 
-  // Serial.print("freeMemory()=");
-  // Serial.println(freeMemory());
+  strncpy(value + 10, clearLine, 10);
+  strncpy(value + 10, clearLine, 10);
+  strncpy(value + 11, autoModeOn ? "AUT:" : "MNL:", 4);
+  strncpy(value + 15, rimsOn ? "ON " : "OFF", 3);
 
   value = displayLines[2];
-  double amps = ammeter->getCurrent();
+  double amps = abs(ammeter->getCurrent());
+  amps = amps < 0 ? -amps : amps;
   double out = rimsController->output;
   dtostrf(amps, 0, 1, numBuff);
   strncat(numBuff, clearLine, 20 - strlen(numBuff));
-  //  01234567890123456789
-  // "AMPS:##.#   OUT:###%",
   strncpy(value + 5, clearLine, 4);
   strncpy(value + 5, numBuff, 4);
   dtostrf(out * 100.0, 0, 0, numBuff);
+  strncat(numBuff, "%", 20 - strlen(numBuff));
   strncat(numBuff, clearLine, 20 - strlen(numBuff));
-  strncpy(value + 16, numBuff, 3);
+  strncpy(value + 15, numBuff, 5);
 
-  // Serial.print("freeMemory()=");
-  // Serial.println(freeMemory());
-
+  const char* setWord = "?";
+  const char* valWord = ":";
   value = displayLines[3];
-  //  01234567890123456789
-  // "P:#### I:#### D:####"
   strncpy(value + 1, (inputMode == 1 ? setWord : valWord), 1);
-  strncpy(value + 8, (inputMode == 1 ? setWord : valWord), 1);
-  strncpy(value + 15, (inputMode == 1 ? setWord : valWord), 1);
+  strncpy(value + 8, (inputMode == 2 ? setWord : valWord), 1);
+  strncpy(value + 15, (inputMode == 3 ? setWord : valWord), 1);
   dtostrf(rimsController->kp, 0, 1, numBuff);
   strncat(numBuff, clearLine, 20 - strlen(numBuff));
   strncpy(value + 2, clearLine, 4);

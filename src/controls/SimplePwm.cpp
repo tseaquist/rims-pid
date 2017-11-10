@@ -13,6 +13,11 @@ SimplePwm::SimplePwm(double frequencyHz, int outputPin)
 void SimplePwm::setMode( bool isOn )
 {
   this->isOn = isOn;
+  //Turn off immediately
+  if(!isOn)
+  {
+      digitalWrite(outputPin, LOW);
+  }
 }
 
 void SimplePwm::update(double dutyCycle)
@@ -21,7 +26,7 @@ void SimplePwm::update(double dutyCycle)
   unsigned long quotient = (currentMillis - windowStartTime) / periodMillis;
   windowStartTime += quotient * periodMillis;
 
-  if (dutyCycle * periodMillis < currentMillis - windowStartTime)
+  if ((1 - dutyCycle) * periodMillis < currentMillis - windowStartTime)
   {
     if(isOn)
     {

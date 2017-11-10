@@ -12,6 +12,7 @@ RimsController::RimsController(
   this->output = 0;
   this->tubeThermistor = tubeThermistor;
   this->mashThermistor = mashThermistor;
+
   EEPROM.get(kpOffset, kp);
   EEPROM.get(kiOffset, ki);
   EEPROM.get(kdOffset, kd);
@@ -33,6 +34,10 @@ RimsController::RimsController(
 
 void RimsController::setOnState( bool isOn, bool autoMode )
 {
+  if(this->isOn != isOn && !isOn && autoMode)
+  {
+    output = 0.0;
+  }
   this->isOn = isOn;
   this->pwmOutput->setMode(isOn);
   if(isOn)
@@ -51,18 +56,17 @@ void RimsController::setMode( bool autoMode )
 {
 
   bool on = this->pid->GetMode() == AUTOMATIC;
-  //Is state changed? Is it off?
-  if(autoMode == on || !isOn)
+  //Is state changed?
+  if(autoMode != on)
   {
-    return;
-  }
-  if(autoMode)
-  {
-    this->pid->SetMode(AUTOMATIC);
-  }
-  else
-  {
-    this->pid->SetMode(MANUAL);
+    if(autoMode)
+    {
+      this->pid->SetMode(AUTOMATIC);
+    }
+    else
+    {
+      this->pid->SetMode(MANUAL);
+    }
   }
 }
 
@@ -86,7 +90,8 @@ void RimsController::incrementInput(int increment, int param)
       percent += increment;
       percent = percent < 0 ? 0 : percent;
       percent = percent > 100 ? 100 : percent;
-      setManualOutput(this->output + percent / 100.0);
+
+      setManualOutput(percent / 100.0);
     }
   }
   else if(param == 1)
@@ -115,6 +120,9 @@ void RimsController::saveParams()
 
 void RimsController::setParams(double kp, double ki, double kd)
 {
+  this->kp = kp;
+  this->ki = ki;
+  this->kd = kd;
   this->pid->SetTunings(kp, ki, kd);
 }
 
@@ -136,5 +144,6 @@ double RimsController::getMashTemp()
 void RimsController::update()
 {
   this->pid->Compute();
+
   this->pwmOutput->update(this->output);
 }

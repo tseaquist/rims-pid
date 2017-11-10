@@ -19,6 +19,7 @@ class LCD
     {
       lcd.begin();
       lcd.setBacklight( true );
+      lcd.clear();
 
       for(int r = 0; r < ROWS; r++)
       {
@@ -40,6 +41,12 @@ class LCD
     void copyForLcd(char* dest, const char* str)
     {
       int length = strlen(str);
+      if(length > COLS)
+      {
+        Serial.print(F("BAD STR LENGTH! "));
+        Serial.println(length);
+        length = COLS;
+      }
       strncpy(dest, str, COLS);
       for(int i = length; i < COLS; i++)
       {

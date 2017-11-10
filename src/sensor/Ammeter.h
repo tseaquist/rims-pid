@@ -7,7 +7,7 @@ class Ammeter
     unsigned long lastUpdate;
     double lastCurrent;
     unsigned int bitResolution = 1023;
-    float refVoltage = 5;
+    double refVoltage = 5;
 
     Ammeter(unsigned int pin);
 

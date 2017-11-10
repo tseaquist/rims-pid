@@ -3,9 +3,10 @@
 #include "interface/RimsUpdater.h"
 
 RimsUpdater* rims;
+
 void setup()
 {
-  Serial.begin(9600);
+  Serial.begin(9600L);
   rims = new RimsUpdater();
 }
 

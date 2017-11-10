@@ -18,15 +18,20 @@ double Thermistor::getResistance()
 {
   if(ads->getGain() != GAIN_ONE)
   {
+    Serial.print(F("BAD GAIN: "));
+    Serial.println(ads->getGain());
     ads->setGain(GAIN_ONE);
+    Serial.print(F("CORRECTED GAIN: "));
+    Serial.println(ads->getGain());
   }
-  int adc = ads->readADC_SingleEnded(pin);
-  double v = adc * voltsPerBit;
+
+  int16_t adc = ads->readADC_SingleEnded(pin);
+  double v = ((double)adc) * voltsPerBit;
   double resistance = voltage * resistor / v - resistor;
   return resistance;
 }
 
-float Thermistor::getTemp()
+double Thermistor::getTemp()
 {
   unsigned long now = millis();
   if(now - lastUpdate > 1000)
@@ -48,5 +53,5 @@ void Thermistor::update()
   temp = temp * lnResitance + steinhartA1;
   //Final part is to invert
   temp = 1.0 / temp;
-  *currentTemp = (float)(9.0 * (temp - 273.0) / 5.0 + 32.0);
+  *currentTemp = (9.0 * (temp - 273.0) / 5.0 + 32.0);
 }

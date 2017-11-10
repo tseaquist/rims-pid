@@ -19,13 +19,13 @@ class Thermistor
     unsigned long lastUpdate;
     double* currentTemp;
     //Corresponds to GAIN 1
-    double voltsPerBit = 0.000125;
-    double voltage = 3.3;
+    const double voltsPerBit = 0.000125;
+    const double voltage = 3.3;
 
   public:
     Thermistor(unsigned int pin, Adafruit_ADS1115* ads, double resistor, double A1, double A2, double A3, double A4);
     void update();
-    float getTemp();
+    double getTemp();
     double getResistance();
 };
 #endif

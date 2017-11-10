@@ -2,7 +2,7 @@
 
 Input::Input():
   dial(3, 2),
-  rotaryButton(1),
+  rotaryButton(11),
   pumpButton(4),
   rimsButton(5),
   rimsModeSwitch(6)

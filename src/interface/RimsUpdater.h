@@ -2,6 +2,7 @@
 #include "../display/LCD.h"
 #include "../input/Input.h"
 #include "../sensor/Ammeter.h"
+#include <math.h>
 
 class RimsUpdater
 {
@@ -9,6 +10,7 @@ class RimsUpdater
     RimsController* rimsController;
     Ammeter* ammeter;
     Input* input;
+    Adafruit_ADS1115* ads;
 
     LCD<4, 20>* lcd;
     unsigned int pumpOutPin;
@@ -16,18 +18,13 @@ class RimsUpdater
 
     char displayLines[4][21] =
     {
-      "RIMS:###.#~###.#  AU",
-      "MASH:###.#          ",
-      "AMPS:##.#   OUT:###%",
-      "P:#### I:#### D:####"
+     // 0   1   2   3   4   5   6   7   8   9   0   1   2   3   4   5   6   7   8   9
+      {'R','I','M','S',':','#','#','#','.','#',' ','S','E','T',':','#','#','#','.','#'},
+      {'M','A','S','H',':','#','#','#','.','#',' ','M','A','N',':','O','F','F',' ',' '},
+      {'A','M','P','S',':','#','#','.','#',' ',' ','O','U','T',':','#','#','#','%',' '},
+      {'P',':','#','#','#','#',' ','I',':','#','#','#','#',' ','D',':','#','#','#','#'}
     };
     char numBuff[21];
-    const char* clearLine = "                    ";
-    const char* autoWord = "AU";
-    const char* manualWord = "MN";
-    const char* toWord = "~";
-    const char* setWord = "?";
-    const char* valWord = ":";
 
     bool pumpOn;
     bool rimsOn;
