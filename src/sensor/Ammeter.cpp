@@ -17,11 +17,8 @@ Ammeter::Ammeter(unsigned int pin)
 double Ammeter::getCurrent()
 {
   unsigned long now = millis();
-  if(now - lastUpdate > 1000)
-  {
-    lastUpdate = now;
-    update();
-  }
+  lastUpdate = now;
+  update();
   return lastCurrent;
 }
 

@@ -34,11 +34,8 @@ double Thermistor::getResistance()
 double Thermistor::getTemp()
 {
   unsigned long now = millis();
-  if(now - lastUpdate > 1000)
-  {
-    lastUpdate = now;
-    update();
-  }
+  lastUpdate = now;
+  update();
   return currentTemp;
 }
 

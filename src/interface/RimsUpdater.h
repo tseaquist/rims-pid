@@ -12,6 +12,8 @@ class RimsUpdater
     Input* input;
     Adafruit_ADS1115* ads;
 
+    unsigned long lastUpdate;
+
     LCD<4, 20>* lcd;
     unsigned int pumpOutPin;
     unsigned int pumpLedPin;
@@ -34,6 +36,6 @@ class RimsUpdater
 
     RimsUpdater();
     void update();
-    void display();
+    void display(bool force);
     void pumpMode(bool onOff);
 };

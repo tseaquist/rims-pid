@@ -38,6 +38,7 @@ RimsUpdater::RimsUpdater()
     rimsOn = false;
     autoModeOn = input->isRimsModeUp();
     inputMode = 0;
+    lastUpdate = millis();
 }
 
 void RimsUpdater::pumpMode(bool onOff)
@@ -56,13 +57,16 @@ void RimsUpdater::pumpMode(bool onOff)
 
 void RimsUpdater::update()
 {
+  bool forceDisplay = false;
   if(input->isPumpClick())
   {
+    forceDisplay = true;
     pumpOn = !pumpOn;
     pumpMode(pumpOn);
   }
   if(input->isRimsClick())
   {
+    forceDisplay = true;
     rimsOn = !rimsOn;
   }
   //Cannot have pump off with rims on
@@ -71,6 +75,10 @@ void RimsUpdater::update()
     rimsOn = false;
   }
 
+  if(autoModeOn != input->isRimsModeUp())
+  {
+    forceDisplay = true;
+  }
   autoModeOn = input->isRimsModeUp();
   if(!autoModeOn)
   {
@@ -82,6 +90,7 @@ void RimsUpdater::update()
 
   if(input->isRotaryClick())
   {
+    forceDisplay = true;
     if(autoModeOn)
     {
       inputMode = (inputMode + 1)%4;
@@ -95,14 +104,23 @@ void RimsUpdater::update()
   int turnCount = input->getTurnCount();
   if(turnCount != 0)
   {
+    forceDisplay = true;
     rimsController->incrementInput(turnCount, inputMode);
   }
   rimsController->update();
-  display();
+  display(forceDisplay);
 }
 
-void RimsUpdater::display()
+void RimsUpdater::display(bool force)
 {
+  unsigned long now = millis();
+  unsigned long timeChange = (now - lastUpdate);
+  if(timeChange < 500 && !force)
+  {
+    return;
+  }
+
+  lastUpdate = now;
   const char* clearLine = "                    ";
 
   strncpy(numBuff, clearLine, 20);
@@ -193,7 +211,7 @@ void RimsUpdater::display()
     {
       strncpy(value + 0, "I:", 2);
       //Display 0.1% per (deg*sec)
-      dtostrf(rimsController->kp * 1000, 0, 0, numBuff);
+      dtostrf(rimsController->ki * 1000, 0, 0, numBuff);
       strncat(numBuff, clearLine, 20 - strlen(numBuff));
       strncpy(value + 2, numBuff, 4);
       strncpy(value + 7, "0.1%/(Dg*Sec)", 13);
@@ -202,7 +220,7 @@ void RimsUpdater::display()
     {
       strncpy(value + 0, "D:", 2);
       //Display 0.1% per (deg/sec)
-      dtostrf(rimsController->kp * 1000, 0, 0, numBuff);
+      dtostrf(rimsController->kd * 1000, 0, 0, numBuff);
       strncat(numBuff, clearLine, 20 - strlen(numBuff));
       strncpy(value + 2, numBuff, 4);
       strncpy(value + 7, "0.1%/(Dg/Sec)", 13);
