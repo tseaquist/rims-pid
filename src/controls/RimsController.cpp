@@ -38,7 +38,7 @@ void RimsController::setState( bool isOn, bool autoMode )
 {
   if(this->isOn != isOn || autoMode != autoWhenOn)
   {
-    if(autoWhenOn && isOn)
+    if(autoMode && isOn)
     {
       this->pid->SetMode(AUTOMATIC);
     }
@@ -109,12 +109,9 @@ void RimsController::saveParams()
 //kd: duty per (deg/sec)
 void RimsController::setParams(double kp, double ki, double kd)
 {
-  this->kp = kp < 0 ? 0 : kp;
-  this->kp = kp > 1.0 ? 1.0 : kp;
-  this->ki = ki < 0 ? 0 : ki;
-  this->ki = ki > 1.0 ? 1.0 : ki;
-  this->kd = kd < 0 ? 0 : kd;
-  this->kd = kd > 1.0 ? 1.0 : kd;
+  this->kp = kp < 0 ? 0 : (kp > 1.0 ? 1.0 : kp);
+  this->ki = ki < 0 ? 0 : (ki > 1.0 ? 1.0 : ki);
+  this->kd = kd < 0 ? 0 : (kd > 1.0 ? 1.0 : kd);
   this->pid->SetTunings(kp, ki, kd);
 }
 

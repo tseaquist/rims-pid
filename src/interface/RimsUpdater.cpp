@@ -8,28 +8,30 @@ RimsUpdater::RimsUpdater()
     ads->setGain(GAIN_ONE);
     ads->begin();
     //ADS A0 pin
-    Thermistor* rimsThermistor = new Thermistor(0, ads, 10000,
-      1.0381149079075397E-3,
-      2.5144581342720644E-4,
+    //A0: 6.063015265730773E-4
+    //A1: 2.3866348448687351E-4
+    Thermistor* rimsThermistor = new Thermistor(0, ads, 22000,
+      6.063015265730773E-4,
+      2.3866348448687351E-4,
       0.0,
       0.0);
     //ADS A1 pin
-    Thermistor* mashThermistor = new Thermistor(1, ads, 10000,
-      1.0381149079075397E-3,
-      2.5144581342720644E-4,
+    Thermistor* mashThermistor = new Thermistor(1, ads, 22000,
+      6.063015265730773E-4,
+      2.3866348448687351E-4,
       0.0,
       0.0);
-    //active led pin: 9
+    //active led pin: 8
     //output relay pin: 10
-    rimsController = new RimsController(rimsThermistor, mashThermistor, 9, 10, 150);
+    rimsController = new RimsController(rimsThermistor, mashThermistor, 8, 10, 150);
 
     //Arduino A0 pin
     ammeter = new Ammeter(0);
 
     input = new Input();
 
-    pumpOutPin = 7;
-    pumpLedPin = 8;
+    pumpOutPin = 9;
+    pumpLedPin = 9;
     pinMode(pumpOutPin, OUTPUT);
     digitalWrite(pumpOutPin, LOW);
     pinMode(pumpLedPin, OUTPUT);

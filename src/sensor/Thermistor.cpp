@@ -50,5 +50,6 @@ void Thermistor::update()
   temp = temp * lnResitance + steinhartA1;
   //Final part is to invert
   temp = 1.0 / temp;
-  currentTemp = (9.0 * (temp - 273.0) / 5.0 + 32.0);
+  double tempf = (9.0 * (temp - 273.0) / 5.0 + 32.0);
+  currentTemp = round(tempf * 10.0) / 10.0;
 }

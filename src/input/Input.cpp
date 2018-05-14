@@ -1,8 +1,8 @@
 #include "Input.h"
 
 Input::Input():
-  dial(3, 2),
-  rotaryButton(11),
+  dial(2, 3),
+  rotaryButton(7),
   pumpButton(4),
   rimsButton(5),
   rimsModeSwitch(6)
