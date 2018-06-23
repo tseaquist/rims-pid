@@ -17,9 +17,18 @@ Ammeter::Ammeter(unsigned int pin)
 double Ammeter::getCurrent()
 {
   unsigned long now = millis();
+  if(now - lastUpdate < 3000)
+  {
+    return current;
+  }
   lastUpdate = now;
-  update();
-  return lastCurrent;
+  if(numReads > 0)
+  {
+    current = sqrt(squareSum / numReads);
+    squareSum = current * current;
+    numReads = 1;
+  }
+  return current;
 }
 
 void Ammeter::update()
@@ -28,5 +37,7 @@ void Ammeter::update()
   double volts = bits * refVoltage / bitResolution;
   //100mV per Amp
   double amps = (volts - refVoltage / 2.0) * 10.0;
-  lastCurrent = amps;
+  double amps2 = amps * amps;
+  squareSum += amps2;
+  numReads++;
 }

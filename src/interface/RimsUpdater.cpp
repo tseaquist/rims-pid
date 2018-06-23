@@ -59,6 +59,8 @@ void RimsUpdater::pumpMode(bool onOff)
 
 void RimsUpdater::update()
 {
+  //Always update ammeter for rms calculation
+  ammeter->update();
   bool forceDisplay = false;
   if(input->isPumpClick())
   {
@@ -161,8 +163,7 @@ void RimsUpdater::display(bool force)
   strncpy(value + 15, rimsOn ? "ON " : "OFF", 3);
 
   value = displayLines[2];
-  double amps = abs(ammeter->getCurrent());
-  amps = amps < 0 ? -amps : amps;
+  double amps = ammeter->getCurrent();
   double out = rimsController->output;
   dtostrf(amps, 0, 1, numBuff);
   strncat(numBuff, clearLine, 20 - strlen(numBuff));

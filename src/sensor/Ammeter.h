@@ -5,7 +5,9 @@ class Ammeter
   public:
     unsigned int pin;
     unsigned long lastUpdate;
-    double lastCurrent;
+    double current = 0;
+    double squareSum = 0;
+    int numReads = 0;
     unsigned int bitResolution = 1023;
     double refVoltage = 5;
 

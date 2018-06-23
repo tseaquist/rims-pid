@@ -73,11 +73,10 @@ void RimsController::incrementInput(int increment, int param)
     }
     else
     {
-      int percent = (int)(this->output * 100.0);
+      int percent = (int)round(this->output * 100.0);
       percent += increment;
       percent = percent < 0 ? 0 : percent;
       percent = percent > 100 ? 100 : percent;
-
       setManualOutput(percent / 100.0);
     }
   }

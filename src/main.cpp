@@ -7,6 +7,7 @@ RimsUpdater* rims;
 void setup()
 {
   Serial.begin(9600L);
+  analogReference(DEFAULT);
   rims = new RimsUpdater();
 }
 
