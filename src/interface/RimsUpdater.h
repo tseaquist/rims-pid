@@ -28,7 +28,6 @@ class RimsUpdater
     };
     char numBuff[21];
 
-    bool pumpOn;
     bool rimsOn;
     bool autoModeOn;
 

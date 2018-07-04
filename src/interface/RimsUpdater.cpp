@@ -36,7 +36,6 @@ RimsUpdater::RimsUpdater()
     digitalWrite(pumpOutPin, LOW);
     pinMode(pumpLedPin, OUTPUT);
     digitalWrite(pumpLedPin, LOW);
-    pumpOn = false;
     rimsOn = false;
     autoModeOn = input->isRimsModeUp();
     inputMode = 0;
@@ -62,21 +61,11 @@ void RimsUpdater::update()
   //Always update ammeter for rms calculation
   ammeter->update();
   bool forceDisplay = false;
-  if(input->isPumpClick())
-  {
-    forceDisplay = true;
-    pumpOn = !pumpOn;
-    pumpMode(pumpOn);
-  }
-  if(input->isRimsClick())
+  if(input->isPumpClick() || input->isRimsClick())
   {
     forceDisplay = true;
     rimsOn = !rimsOn;
-  }
-  //Cannot have pump off with rims on
-  if(rimsOn && !pumpOn)
-  {
-    rimsOn = false;
+    pumpMode(rimsOn);
   }
 
   if(autoModeOn != input->isRimsModeUp())
